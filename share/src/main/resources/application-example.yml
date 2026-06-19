@@ -1,0 +1,52 @@
+# ==============================================
+# Note Share Platform - Configuration Template
+# Copy this file to application.yml and fill in your own values
+# application.yml is gitignored — never commit real credentials
+# ==============================================
+
+spring:
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/share?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: YOUR_DB_USERNAME
+    password: YOUR_DB_PASSWORD
+
+  servlet:
+    multipart:
+      max-file-size: 300MB
+      max-request-size: 300MB
+  web:
+    resources:
+      static-locations: classpath:static/,file:static/
+  mail:
+    host: smtp.qq.com
+    port: 587
+    username: YOUR_QQ_EMAIL@qq.com
+    password: YOUR_QQ_MAIL_AUTH_CODE
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+jwt:
+  secret: "YOUR_JWT_SECRET_KEY_CHANGE_ME_TO_RANDOM_STRING"
+  expiration: 86400000
+
+server:
+  port: 8081
+  base-url: http://localhost:8081
+
+file:
+  upload-dir: D:/bishe/share/uploads
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0

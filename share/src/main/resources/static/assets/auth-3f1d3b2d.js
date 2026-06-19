@@ -1,0 +1,1 @@
+import{r as t}from"./request-0850a99b.js";const r=s=>t.post("/auth/login",s),e=s=>t.post("/auth/register",s),a=s=>t.put("/auth/password",s),n=s=>t.post("/auth/reset-code",s),u=s=>t.post("/auth/confirmCode",s),p=s=>t.post("/auth/reset-password",s);export{p as a,u as c,r as l,e as r,n as s,a as u};

@@ -1,0 +1,1 @@
+import{r as e}from"./request-0850a99b.js";const r=s=>e.get(`/users/profile/${s}`),o=s=>e.put("/users/profile",s),u=s=>e.get(`/users/notes/${s}`),a=s=>e.get(`/users/${s}/friend-status`),n=s=>e.post("/friend-requests",{toUserId:s}),i=s=>e.get(`/users/${s}/profile`);export{u as a,n as b,a as c,i as d,r as g,o as p};

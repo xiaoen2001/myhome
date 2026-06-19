@@ -1,0 +1,52 @@
+# === Root .gitignore for note-share-platform ===
+
+# ---- Sensitive Config (DO NOT COMMIT) ----
+application.yml
+src/main/resources/application.yml
+**/application-*.yml
+!**/application-example.yml
+
+# ---- Credentials & Secrets ----
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+*.pwd
+.env
+.env.*
+!**/.env.example
+
+# ---- IDE ----
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# ---- Java / Maven ----
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+
+# ---- Node / Frontend ----
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ---- Uploads (local dev files) ----
+uploads/
+static/uploads/
+
+# ---- Logs ----
+logs/
+*.log
