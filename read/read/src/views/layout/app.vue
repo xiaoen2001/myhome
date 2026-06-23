@@ -30,7 +30,7 @@ function connectWebSocket() {
   console.log("键入了")
   const token = userStore.token
   if (!token) return;
-  const wsUrl = `ws://localhost:8080/ws/notifications?token=${token}`;
+  const wsUrl = `ws://localhost:8081/ws/notifications?token=${token}`;
   socket = new WebSocket(wsUrl);
   socket.onopen = () => console.log('WebSocket 连接成功');
 
@@ -92,6 +92,7 @@ onUnmounted(() => {
   margin: 0 auto;
   width: 100%;
   flex: 1;
+  min-height: 0;
   background-color: #f8f9fa;
 }
 

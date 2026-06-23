@@ -1,392 +1,391 @@
 <template>
-  <div class="friends-page">
-    <el-tabs v-model="activeTab" @tab-click="handleTabClick">
-      <!-- 消息标签页 -->
-      <el-tab-pane label="消息" name="messages">
-        <div class="message-list">
-          <div v-for="msg in recentMessages" :key="msg.id" class="message-item" @click="startChatFromMsg(msg)">
-            <el-avatar :size="48" :src="getAvatarUrl(msg.avatar)"/>
-            <div class="message-info">
-              <div class="name">{{ msg.nickname }}</div>
-              <div class="last-message">{{ msg.content }}</div>
-            </div>
-            <div class="message-time">{{ formatTime(msg.createdAt) }}</div>
-          </div>
-          <el-empty v-if="recentMessages.length === 0" description="暂无消息"/>
-        </div>
-      </el-tab-pane>
+  <div class="qq-chat-container">
+    <!-- 左侧边栏：好友列表 -->
+    <div class="chat-sidebar">
+      <!-- 标签切换 -->
+      <div class="sidebar-tabs">
+        <div class="tab-item" :class="{active: sidebarTab==='messages'}" @click="switchTab('messages')">消息</div>
+        <div class="tab-item" :class="{active: sidebarTab==='friends'}" @click="switchTab('friends')">好友</div>
+        <div class="tab-item" :class="{active: sidebarTab==='requests'}" @click="switchTab('requests')">申请</div>
+        <div class="tab-item" :class="{active: sidebarTab==='add'}" @click="switchTab('add')">添加</div>
+      </div>
 
-      <el-tab-pane label="好友列表" name="friends">
-        <div class="friend-list">
-          <div v-for="friend in friends" :key="friend.id" class="friend-item">
-            <el-avatar :size="48" :src="getAvatarUrl(friend.friendAvatar)"/>
-            <div class="friend-info">
-              <div class="name">{{ friend.friendNickname || '未知用户' }}</div>
-              <div class="since">成为好友于 {{ formatDate(friend.createdAt) }}</div>
-            </div>
-            <div class="friend-actions">
-              <el-button link type="primary" @click="startChat(friend)">发消息</el-button>
-              <el-button link type="danger" @click="removeFriend(friend)">删除好友</el-button>
-            </div>
-          </div>
-          <el-empty v-if="friends.length === 0" description="暂无好友，去添加吧"/>
-        </div>
-      </el-tab-pane>
+      <!-- 搜索框 -->
+      <div class="sidebar-search" v-if="sidebarTab==='add'">
+        <el-input v-model="searchKeyword" placeholder="搜索用户" size="small" clearable @keyup.enter="searchUsers" />
+        <el-button size="small" type="primary" @click="searchUsers">搜索</el-button>
+      </div>
 
-      <el-tab-pane label="好友申请" name="requests">
-        <div class="request-list">
-          <div v-for="req in requests" :key="req.id" class="request-item">
-            <el-avatar :size="48" :src="getAvatarUrl(req.fromUserAvatar)"/>
-            <div class="request-info">
-              <div class="name">{{ req.fromUserNickname }}</div>
-              <div class="time">申请时间：{{ formatDate(req.createdAt) }}</div>
-            </div>
-            <div class="request-actions">
-              <el-button type="success" size="small" @click="handleRequest(req.id, 'agree')">同意</el-button>
-              <el-button type="danger" size="small" @click="handleRequest(req.id, 'reject')">拒绝</el-button>
-            </div>
+      <!-- 消息列表 -->
+      <div class="sidebar-list" v-if="sidebarTab==='messages'">
+        <div v-for="msg in recentMessages" :key="msg.id" class="contact-item"
+             :class="{active: activeChatId === getFriendId(msg)}"
+             @click="openChat(getFriendId(msg), msg.nickname, msg.avatar)">
+          <el-avatar :size="40" :src="getAvatarUrl(msg.avatar)"/>
+          <div class="contact-info">
+            <div class="contact-name">{{ msg.nickname }}</div>
+            <div class="contact-preview">{{ msg.content }}</div>
           </div>
-          <el-empty v-if="requests.length === 0" description="暂无好友申请"/>
         </div>
-      </el-tab-pane>
+        <el-empty v-if="!recentMessages.length" description="暂无消息" />
+      </div>
 
-      <el-tab-pane label="添加好友" name="add">
-        <div class="search-bar">
-          <el-input
-              v-model="searchKeyword"
-              placeholder="搜索用户名或昵称"
-              clearable
-              @keyup.enter="searchUsers"
-          />
-          <el-button type="primary" @click="searchUsers">搜索</el-button>
+      <!-- 好友列表 -->
+      <div class="sidebar-list" v-if="sidebarTab==='friends'">
+        <div v-for="f in friends" :key="f.id" class="contact-item"
+             :class="{active: activeChatId === f.friendId}" @click="openChat(f.friendId, f.friendNickname, f.friendAvatar)">
+          <el-avatar :size="40" :src="getAvatarUrl(f.friendAvatar)"/>
+          <div class="contact-info">
+            <div class="contact-name">{{ f.friendNickname }}</div>
+          </div>
         </div>
-        <div class="search-results">
-          <div v-for="user in searchResults" :key="user.id" class="search-item">
+        <el-empty v-if="!friends.length" description="暂无好友" />
+      </div>
+
+      <!-- 好友申请 -->
+      <div class="sidebar-list" v-if="sidebarTab==='requests'">
+        <div v-for="req in requests" :key="req.id" class="request-row">
+          <el-avatar :size="36" :src="getAvatarUrl(req.fromUserAvatar)"/>
+          <div class="request-info">
+            <span class="contact-name">{{ req.fromUserNickname }}</span>
+          </div>
+          <div class="request-actions">
+            <el-button size="small" type="success" @click="handleRequest(req.id,'agree')">同意</el-button>
+            <el-button size="small" type="danger" @click="handleRequest(req.id,'reject')">拒绝</el-button>
+          </div>
+        </div>
+        <el-empty v-if="!requests.length" description="暂无申请" />
+      </div>
+
+      <!-- 添加好友 -->
+      <div class="sidebar-list" v-if="sidebarTab==='add'">
+        <div v-for="user in searchResults" :key="user.id" class="contact-item" @click="sendRequest(user.id)">
+          <el-avatar :size="40" :src="getAvatarUrl(user.avatar)"/>
+          <div class="contact-info">
+            <div class="contact-name">{{ user.nickname }}</div>
+            <div class="contact-preview">@{{ user.username }}</div>
+          </div>
+          <el-button size="small" type="primary">添加</el-button>
+        </div>
+        <div class="recommend-section" v-if="!searchResults.length && sidebarTab==='add'">
+          <div class="section-label">推荐好友</div>
+          <div v-for="user in recommendUsers" :key="user.id" class="contact-item" @click="sendRequest(user.id)">
             <el-avatar :size="40" :src="getAvatarUrl(user.avatar)"/>
-            <div class="user-info">
-              <div class="nickname">{{ user.nickname }}</div>
-              <div class="username">@{{ user.username }}</div>
+            <div class="contact-info">
+              <div class="contact-name">{{ user.nickname }}</div>
+              <div class="contact-preview">@{{ user.username }}</div>
             </div>
-            <el-button type="primary" size="small" @click="sendRequest(user.id)">添加好友</el-button>
+            <el-button size="small" type="primary">添加</el-button>
           </div>
-          <el-empty v-if="searchResults.length === 0 && searched" description="未找到用户"/>
         </div>
+      </div>
+    </div>
 
-        <div class="recommend-section" v-if="recommendUsers.length">
-          <div class="section-title">推荐好友</div>
-          <div class="recommend-list">
-            <div v-for="user in recommendUsers" :key="user.id" class="recommend-item">
-              <el-avatar :size="40" :src="getAvatarUrl(user.avatar)">
-                <img :src="defaultAvatar" alt="默认头像"/>
-              </el-avatar>
-              <div class="user-info">
-                <div class="nickname">{{ user.nickname }}</div>
-                <div class="username">@{{ user.username }}</div>
-                <div class="mutual" v-if="user.mutualFriendsCount">共同好友 {{ user.mutualFriendsCount }}人</div>
-              </div>
-              <el-button type="primary" size="small" @click="sendRequest(user.id)">添加好友</el-button>
-            </div>
+    <!-- 右侧：聊天面板 -->
+    <div class="chat-main" v-if="activeChatId">
+      <div class="chat-top">
+        <span class="chat-friend-name">{{ activeChatName }}</span>
+      </div>
+      <div class="chat-messages" ref="msgListRef">
+        <div v-for="msg in chatMessages" :key="msg.id" class="msg-row" :class="msg.senderId===myUserId ? 'msg-me' : 'msg-other'">
+          <el-avatar v-if="msg.senderId!==myUserId" :size="32" :src="getAvatarUrl(activeChatAvatar)" class="msg-avatar"/>
+          <div class="msg-bubble" :class="msg.senderId===myUserId?'bubble-me':''">
+            <div class="msg-text">{{ msg.content }}</div>
+            <div class="msg-time">{{ formatMsgTime(msg.createdAt) }}</div>
           </div>
         </div>
-      </el-tab-pane>
-    </el-tabs>
+      </div>
+      <div class="chat-input-area">
+        <el-input v-model="inputText" type="textarea" :rows="2" placeholder="输入消息... Enter 发送"
+                  @keydown.enter.exact.prevent="sendMsg" class="chat-input"/>
+        <el-button type="primary" @click="sendMsg" size="small">发送</el-button>
+      </div>
+    </div>
+
+    <!-- 未选择好友时的占位 -->
+    <div class="chat-placeholder" v-else>
+      <el-empty description="选择一个好友开始聊天" />
+    </div>
   </div>
 </template>
 
 <script setup>
 import { getAvatarUrl } from '@/utils/avatar'
-import {ref, onMounted, computed} from 'vue'
-import {ElMessage} from 'element-plus'
+import { ref, onMounted, nextTick, onBeforeUnmount, computed } from 'vue'
+import { ElMessage } from 'element-plus'
 import { ElMessageBox } from 'element-plus'
-import {useRouter} from 'vue-router'
-import {useUserStore} from "@/stores/user.js";
+import { useUserStore } from '@/stores/user'
 import {
-  getFriends,
-  getFriendRequests,
-  sendFriendRequest,
-  deleteFriend,
-  handleFriendRequest,
-  searchUsers as apiSearchUsers,
-  getRecommendUsers,
-  getRecentMessages
+  getFriends, getFriendRequests, sendFriendRequest, deleteFriend,
+  handleFriendRequest, searchUsers as apiSearchUsers, getRecommendUsers, getRecentMessages
 } from '@/api/modules/friend'
-const defaultAvatar = '/default-avatar.png'
-const userId = computed(() => useUserStore().userId) // 直接取，假设 store 中已是数字
-const router = useRouter()
-const activeTab = ref('friends')
+import { getMessages } from '@/api/modules/chat'
+
+const userStore = useUserStore()
+const myUserId = computed(() => userStore.userId)
+const myAvatar = computed(() => userStore.avatar || '')
+
+// Sidebar state
+const sidebarTab = ref('friends')
 const friends = ref([])
 const requests = ref([])
+const recentMessages = ref([])
 const searchKeyword = ref('')
 const searchResults = ref([])
-const searched = ref(false)
 const recommendUsers = ref([])
-const recentMessages = ref([])
-//删除好友
-const removeFriend = (friend) => {
-  ElMessageBox.confirm(
-      `确定要删除好友「${friend.friendNickname || '未知用户'}」吗？删除后双方将不再是好友。`,
-      '提示',
-      { type: 'warning' }
-  ).then(async () => {
-    try {
-      await deleteFriend(friend.friendId) // 注意这里是 friendId，而不是 id
-      ElMessage.success('好友已删除')
-      fetchFriends()
-      fetchRecentMessages() // 可选，刷新消息列表
-    } catch (error) {
-      ElMessage.error('删除失败')
-    }
-  }).catch(() => {})
+
+// Chat state
+const activeChatId = ref(null)
+const activeChatName = ref('')
+const activeChatAvatar = ref('')
+const chatMessages = ref([])
+const inputText = ref('')
+const msgListRef = ref(null)
+let chatSocket = null
+
+// ---- Sidebar logic ----
+const switchTab = (tab) => {
+  sidebarTab.value = tab
+  if (tab === 'friends') fetchFriends()
+  else if (tab === 'requests') fetchRequests()
+  else if (tab === 'messages') fetchRecentMsgs()
+  else if (tab === 'add') fetchRecommend()
 }
-const formatDate = (isoString) => {
-  if (!isoString) return ''
-  const date = new Date(isoString)
-  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
-}
-const formatTime = (iso) => {
-  if (!iso) return ''
-  const date = new Date(iso)
-  return `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`
-}
+
 const fetchFriends = async () => {
-  try {
-    const res = await getFriends()
-    friends.value = res || []
-  } catch (error) {
-    ElMessage.error('加载好友列表失败')
-  }
+  try { friends.value = await getFriends() || [] } catch { }
 }
-
-const fetchRecentMessages = async () => {
-  try {
-    const res = await getRecentMessages()
-    recentMessages.value = res
-  } catch (error) {
-    ElMessage.error('加载消息失败')
-  }
-}
-
-const startChat = (friend) => {
-  router.push(`/chat/${friend.friendId}`)
-}
-
 const fetchRequests = async () => {
-  try {
-    const res = await getFriendRequests()
-    requests.value = res || []
-  } catch (error) {
-    ElMessage.error('加载申请列表失败')
-  }
+  try { requests.value = await getFriendRequests() || [] } catch { }
 }
-
-const fetchRecommendUsers = async () => {
-  try {
-    const res = await getRecommendUsers()
-    recommendUsers.value = res || []
-  } catch (error) {
-    console.error('加载推荐好友失败', error)
-  }
+const fetchRecentMsgs = async () => {
+  try { recentMessages.value = await getRecentMessages() || [] } catch { }
 }
-const handleRequest = async (requestId, action) => {
-  try {
-    await handleFriendRequest(requestId, action)
-    ElMessage.success(action === 'agree' ? '已添加好友' : '已拒绝申请')
-    fetchRequests()
-    if (action === 'agree') {
-      fetchFriends()
-      fetchRecommendUsers() // 刷新推荐列表
-    }
-  } catch (error) {
-    ElMessage.error('操作失败')
-  }
+const fetchRecommend = async () => {
+  try { recommendUsers.value = await getRecommendUsers() || [] } catch { }
 }
 
 const searchUsers = async () => {
-  if (!searchKeyword.value.trim()) {
-    ElMessage.warning('请输入搜索关键词')
-    return
-  }
+  if (!searchKeyword.value.trim()) return
+  try { searchResults.value = await apiSearchUsers(searchKeyword.value) || [] } catch { }
+}
+const getFriendId = (msg) => {
+  if (!msg) return null
+  if (msg.friendId) return msg.friendId
+  return msg.senderId === myUserId.value ? msg.receiverId : msg.senderId
+}
+
+const sendRequest = async (uid) => {
+  try { await sendFriendRequest(uid); ElMessage.success('已发送'); fetchRecommend() } catch { ElMessage.error('发送失败') }
+}
+const handleRequest = async (reqId, action) => {
   try {
-    const res = await apiSearchUsers(searchKeyword.value)
-    searchResults.value = res || []
-    searched.value = true
-  } catch (error) {
-    ElMessage.error('搜索失败')
-  }
+    await handleFriendRequest(reqId, action)
+    ElMessage.success(action === 'agree' ? '已添加' : '已拒绝')
+    fetchRequests(); if (action === 'agree') { fetchFriends(); fetchRecommend() }
+  } catch { ElMessage.error('操作失败') }
 }
 
-const sendRequest = async (userId) => {
+// ---- Chat logic ----
+const connectWS = () => {
+  const token = userStore.token
+  if (!token) return
+  chatSocket = new WebSocket(`ws://localhost:8081/ws/chat?token=${token}`)
+  chatSocket.onmessage = (e) => {
+    const msg = JSON.parse(e.data)
+    if (msg.senderId === activeChatId.value || msg.receiverId === activeChatId.value) {
+      chatMessages.value.push(msg)
+      nextTick(() => scrollBottom())
+    }
+  }
+  chatSocket.onerror = () => console.error('WS error')
+}
+
+const openChat = async (friendId, name, avatar) => {
+  activeChatId.value = friendId
+  activeChatName.value = name || '好友'
+  activeChatAvatar.value = avatar || ''
   try {
-    await sendFriendRequest(userId)
-    ElMessage.success('好友申请已发送')
-    // 刷新推荐列表（移除已发送申请的用户）
-    fetchRecommendUsers()
-    // 清空搜索结果
-    searchKeyword.value = ''
-    searchResults.value = []
-    searched.value = false
-  } catch (error) {
-    ElMessage.error(error.response?.data?.message || '发送失败')
-  }
+    chatMessages.value = await getMessages({ friendId }) || []
+    nextTick(() => scrollBottom())
+  } catch { ElMessage.error('加载消息失败') }
 }
 
-// 处理标签页切换
-const handleTabClick = () => {
-  if (activeTab.value === 'friends') fetchFriends()
-  else if (activeTab.value === 'requests') fetchRequests()
-  else if (activeTab.value === 'messages') fetchRecentMessages()
+const sendMsg = () => {
+  if (!inputText.value.trim() || !chatSocket || chatSocket.readyState !== WebSocket.OPEN) return
+  chatSocket.send(JSON.stringify({ receiverId: activeChatId.value, type: 'text', content: inputText.value }))
+  inputText.value = ''
 }
 
-// 从消息列表跳转到聊天
-const startChatFromMsg = (msg) => {
-  console.log('msg对象:', msg)
-  const currentUserId = userId.value
-  if (!currentUserId) {
-    console.error('当前用户ID未获取到')
-    return
-  }
-  let friendId = null
+const scrollBottom = () => {
+  if (msgListRef.value) msgListRef.value.scrollTop = msgListRef.value.scrollHeight
+}
 
-  if (msg.friendId) {
-    friendId = msg.friendId
-  } else if (msg.senderId && msg.receiverId) {
-    // 根据发送者和接收者找出好友ID
-    friendId = msg.senderId === currentUserId ? msg.receiverId : msg.senderId
-  } else {
-    console.error('无法确定好友ID', msg)
-    return
-  }
-  router.push(`/chat/${friendId}`)
+const formatMsgTime = (iso) => {
+  if (!iso) return ''
+  const d = new Date(iso)
+  return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
 }
 
 onMounted(() => {
-  fetchFriends()
-  fetchRequests()
-  fetchRecommendUsers()
-  fetchRecentMessages()
+  fetchFriends(); fetchRequests(); fetchRecentMsgs(); fetchRecommend(); connectWS()
+})
+onBeforeUnmount(() => {
+  if (chatSocket) chatSocket.close()
 })
 </script>
 
 <style scoped>
-.friends-page {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.friend-item, .request-item, .search-item {
+/* ---- 整体布局 ---- */
+.qq-chat-container {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-  background: white;
-  border-radius: 12px;
-  margin-bottom: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #f8f9fb;
+  overflow: hidden;
+  z-index: 1;
 }
 
-.friend-info, .request-info, .user-info {
+/* ---- 左侧栏 ---- */
+.chat-sidebar {
+  width: 280px;
+  min-width: 280px;
+  background: #fff;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+}
+
+.sidebar-tabs {
+  display: flex;
+  border-bottom: 1px solid #e2e8f0;
+}
+.tab-item {
   flex: 1;
+  text-align: center;
+  padding: 10px 0;
+  font-size: 13px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 2px solid transparent;
 }
+.tab-item:hover { color: #3730a3; }
+.tab-item.active { color: #3730a3; border-bottom-color: #3730a3; font-weight: 600; }
 
-.name {
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.since, .time {
-  font-size: 12px;
-  color: #8c9aa6;
-}
-
-.request-actions {
+.sidebar-search {
   display: flex;
-  gap: 8px;
+  gap: 6px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
-.search-bar {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 24px;
+.sidebar-list {
+  flex: 1;
+  overflow-y: auto;
 }
 
-.search-results {
-  margin-top: 20px;
-}
-
-.recommend-section {
-  margin-top: 30px;
-  border-top: 1px solid #e5e7eb;
-  padding-top: 20px;
-}
-
-.section-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 16px;
-  color: #1f2d3d;
-}
-
-.recommend-item {
+/* ---- 联系人条目 ---- */
+.contact-item {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 12px;
-  background: white;
-  border-radius: 12px;
-  margin-bottom: 12px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.contact-item:hover { background: #f1f5f9; }
+.contact-item.active { background: #eef2ff; }
+
+.contact-info { flex: 1; min-width: 0; }
+.contact-name { font-size: 14px; font-weight: 500; color: #0f172a; }
+.contact-preview { font-size: 12px; color: #94a3b8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.request-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.request-info { flex: 1; }
+.request-actions { display: flex; gap: 4px; flex-shrink: 0; }
+
+.recommend-section { padding: 0; }
+.section-label { padding: 10px 14px 4px; font-size: 12px; color: #94a3b8; font-weight: 600; }
+
+/* ---- 右侧聊天 ---- */
+.chat-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
-.mutual {
-  font-size: 12px;
-  color: #8c9aa6;
-  margin-top: 2px;
+.chat-top {
+  padding: 14px 20px;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
 }
+.chat-friend-name { font-size: 15px; font-weight: 600; color: #0f172a; }
 
-/* 新增消息列表样式 */
-.message-list {
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 20px 8px;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.message-item {
+.msg-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: 70%;
+}
+.msg-other { align-self: flex-start; }
+.msg-me { align-self: flex-end; flex-direction: row-reverse; }
+
+.msg-avatar { flex-shrink: 0; }
+
+.msg-bubble {
+  background: #fff;
+  border-radius: 12px;
+  padding: 8px 14px;
+  box-shadow: 0 1px 2px rgba(15,23,42,0.05);
+}
+.bubble-me { background: #3730a3; color: #fff; }
+.msg-text { font-size: 14px; line-height: 1.5; word-break: break-word; }
+.msg-time { font-size: 10px; color: #94a3b8; text-align: right; margin-top: 2px; }
+.bubble-me .msg-time { color: rgba(255,255,255,0.6); }
+
+.chat-input-area {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  padding: 16px 20px 20px;
+  background: #fff;
+  border-top: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+.chat-input { flex: 1; }
+
+.chat-input :deep(.el-textarea__inner) {
+  border-radius: 8px;
+}
+
+/* ---- 占位 ---- */
+.chat-placeholder {
+  flex: 1;
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.message-item:hover {
-  background: #f5f7fa;
-}
-
-.message-info {
-  flex: 1;
-}
-
-.message-info .name {
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.message-info .last-message {
-  font-size: 14px;
-  color: #6b7a86;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.message-time {
-  font-size: 12px;
-  color: #8c9aa6;
-  white-space: nowrap;
+  justify-content: center;
 }
 </style>

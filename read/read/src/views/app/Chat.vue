@@ -90,7 +90,7 @@ let chatSocket = null
 const connectWebSocket = () => {
   const token = userStore.token
   if (!token) return
-  const wsUrl = `ws://localhost:8080/ws/chat?token=${token}`
+  const wsUrl = `ws://localhost:8081/ws/chat?token=${token}`
   chatSocket = new WebSocket(wsUrl)
   chatSocket.onopen = () => console.log('聊天WebSocket已连接')
   chatSocket.onmessage = (event) => {
