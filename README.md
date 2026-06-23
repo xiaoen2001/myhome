@@ -79,6 +79,31 @@
 
 ---
 
+## 📸 项目截图
+
+### 首页
+![首页](screenshots/01-home.png)
+
+### 笔记列表与详情
+<div>
+  <img src="screenshots/02-notes.png" width="48%" alt="笔记列表"/>
+  <img src="screenshots/03-note-detail.png" width="48%" alt="笔记详情"/>
+</div>
+
+### 好友聊天
+![好友聊天](screenshots/04-chat.png)
+
+### 消息通知
+![通知中心](screenshots/05-notifications.png)
+
+### 管理后台
+<div>
+  <img src="screenshots/06-admin-dashboard.png" width="48%" alt="仪表盘"/>
+  <img src="screenshots/07-admin-notes.png" width="48%" alt="笔记审核"/>
+</div>
+
+---
+
 ## 🚀 快速开始
 
 ### 环境要求
@@ -143,6 +168,25 @@ npm run dev
 
 ---
 
+## 🎬 项目演示
+
+### 演示账号
+
+| 用户名 | 密码 | 角色 |
+|--------|------|------|
+| `admin` | `123456` | 管理员 |
+| `alice` | `123456` | 用户 |
+| `bob` | `123456` | 用户 |
+
+### 演示流程
+
+详见 [演示指南](docs/DEMO.md) — 包含 6 幕完整演示脚本、操作步骤、常见追问及回答。
+
+**核心演示路线**：
+1. 注册登录 → 2. 发布笔记（富文本 + 封面）→ 3. 管理员审核 → 4. 点赞/评论/收藏 → 5. 好友实时聊天 → 6. 管理后台仪表盘
+
+---
+
 ## 📁 项目结构
 
 ```
@@ -198,6 +242,7 @@ myhome/
 | [API 参考](docs/API.md) | 完整 RESTful API 文档 |
 | [数据库设计](docs/DATABASE.md) | ER 图、表结构、索引策略 |
 | [部署指南](docs/DEPLOY.md) | 生产环境部署 |
+| [演示指南](docs/DEMO.md) | 答辩演示脚本 + 常见追问 |
 
 ---
 
