@@ -41,11 +41,12 @@
         <el-form-item label="图片" required>
           <el-upload
               class="avatar-uploader"
-              action="http://localhost:8080/api/admin/carousels/upload"
+              action="/api/admin/carousels/upload"
               :headers="uploadHeaders"
               :show-file-list="false"
               :on-success="handleUploadSuccess"
               :before-upload="beforeUpload"
+              :with-credentials="true"
           >
             <img v-if="form.imageUrl" :src="form.imageUrl" class="upload-preview"  alt="图片"/>
             <el-icon v-else class="upload-icon"><Plus /></el-icon>

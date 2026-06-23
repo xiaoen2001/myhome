@@ -43,9 +43,19 @@ Thumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 
-# ---- Uploads (local dev files) ----
-uploads/
-static/uploads/
+# ---- Uploaded Content (user-generated images) ----
+**/uploads/
+**/carousels/
+**/photos/
+
+# ---- SQL Dumps (may contain real data) ----
+*.sql
+
+# ---- Personal Documents ----
+*.pdf
+*.doc
+*.docx
+*.pptx
 
 # ---- Logs ----
 logs/

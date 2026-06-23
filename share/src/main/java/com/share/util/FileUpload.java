@@ -5,7 +5,6 @@ import com.share.common.Result;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -22,11 +21,10 @@ public class FileUpload {
     @Value("${server.base-url:http://localhost:8080}")
     private String baseUrl;
 
-    public Result<String> uploadImage(@RequestParam("file") MultipartFile file) {
+    public Result<String> uploadImage(MultipartFile file, String subDir) {
         String originalFilename = file.getOriginalFilename();
         String suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
         String newFileName = UUID.randomUUID() + suffix;
-        String subDir = "carousels";
         File dir = new File(uploadDir, subDir);
         if (!dir.exists() && !dir.mkdirs()) {
             throw new BusinessException(500, "无法创建上传目录");
@@ -37,7 +35,7 @@ public class FileUpload {
         } catch (IOException e) {
             throw new BusinessException(500, "文件保存失败");
         }
-        String imageUrl = baseUrl + "/uploads/carousels/" + newFileName;
+        String imageUrl = baseUrl + "/uploads/" + subDir + "/" + newFileName;
         return Result.success(imageUrl);
     }
 

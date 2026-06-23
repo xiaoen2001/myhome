@@ -27,7 +27,10 @@ public class CarouselServiceImpl extends ServiceImpl<CarouselMapper, Carousel> i
     public Result<Void> updateCarousel(Long id, Carousel carousel) {
         Carousel oldCarousel = this.getById(id);
         String imageUrl = oldCarousel.getImageUrl();
-        if (imageUrl != null && !imageUrl.equals("")) {
+        // 只删除本地上传的图片文件（跳过外部URL和data URI）
+        if (imageUrl != null && !imageUrl.isEmpty()
+                && imageUrl.startsWith(baseUrl)
+                && !imageUrl.startsWith("data:")) {
             String relativePath = imageUrl.replace(baseUrl + "/uploads/", "");
             File oldFile = new File(uploadDir, relativePath);
             if (oldFile.exists()) {
