@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的家 · xiaoen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(145deg, #f7f0fc 0%, #e9def5 100%);
+            padding: 2rem;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border-radius: 2.5rem;
+            padding: 3rem 4rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            text-align: center;
+            max-width: 600px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+        }
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6e44ff, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+        .sub {
+            font-size: 1.2rem;
+            color: #4b3a5c;
+            margin-bottom: 1.5rem;
+            font-weight: 400;
+            letter-spacing: 0.02em;
+        }
+        .divider {
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #6e44ff, #a855f7);
+            border-radius: 4px;
+            margin: 1rem auto 1.5rem;
+        }
+        p {
+            color: #3d2d4e;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            margin-bottom: 1.8rem;
+        }
+        .badge {
+            display: inline-block;
+            background: rgba(110, 68, 255, 0.12);
+            color: #5b3cc4;
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: 1px solid rgba(110, 68, 255, 0.15);
+        }
+        .footer {
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            color: #7a6a8a;
+        }
+        .footer a {
+            color: #6e44ff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🏠 我的家</h1>
+        <div class="sub">xiaoen · 小恩</div>
+        <div class="divider"></div>
+        <p>
+            欢迎来到我的小天地。<br>
+            这里正在慢慢搭建中，<br>
+            期待和你分享更多有趣的东西 ✨
+        </p>
+        <span class="badge">🌱 建设中 · 2026</span>
+        <div class="footer">
+            <a href="https://github.com/xiaoen2001" target="_blank">GitHub</a>
+            &nbsp;·&nbsp; 由 <a href="https://pages.github.com" target="_blank">GitHub Pages</a> 驱动
+        </div>
+    </div>
+</body>
+</html>
